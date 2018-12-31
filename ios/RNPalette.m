@@ -9,17 +9,20 @@ RCT_EXPORT_MODULE();
 RCT_EXPORT_METHOD(getColors:(NSString *)path options:(NSDictionary *)options callback:(RCTResponseSenderBlock)callback)
 {
 
-  NSURL* aURL = [NSURL URLWithString:path];
-  ALAssetsLibrary *library = [[ALAssetsLibrary alloc] init];
   float dimension = [RCTConvert float:options[@"dimension"]]; // 4
   float flexibility = [RCTConvert float:options[@"flexibility"]]; // 5;
   float range = [RCTConvert float:options[@"range"]]; // 40;
+ 
+    
+    UIImage  *originalImage = [UIImage imageWithContentsOfFile:path ];
 
+    UIImage *image =
+    [UIImage imageWithCGImage:[originalImage CGImage]
+                        scale:0.5
+                  orientation:(UIImageOrientationUp)];
 
-  [library assetForURL:aURL resultBlock:^(ALAsset *asset) {
-    UIImage  *image = [UIImage imageWithCGImage:[[asset defaultRepresentation] fullScreenImage] scale:0.5 orientation:UIImageOrientationUp];
-
-
+  
+    
     // determine the colours in the image
     NSMutableArray * colours = [NSMutableArray new];
     CGImageRef imageRef = [image CGImage];
@@ -182,14 +185,8 @@ RCT_EXPORT_METHOD(getColors:(NSString *)path options:(NSDictionary *)options cal
       NSString* colour = [[UIColor colorWithRed:(r/255.0f) green:(g/255.0f) blue:(b/255.0f) alpha:1.0f] description];
       colourDictionary[colour]=[[NSNumber numberWithFloat:percentage] description];
     }
-
+   
     callback(@[[NSNull null], colourDictionary]);
-  }
-          failureBlock:^(NSError *error) {
-            NSLog(@"failure-----");
-          }];
-
-
 }
 
 @end
